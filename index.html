@@ -9,11 +9,13 @@
         <p>current map: xxx</p>
     </div>
     <div id="fixed_info">
-        <br/>
-        <br/>
+        <br />
+        <br />
         <p>images could take longer to load.</p>
         <p>use a and d to switch between maps.</p>
         <p>use ctrl-mouse wheel to zoom, wheel to pan vertically, shift-wheel to pan horizontally. </p>
+        <p>don't use firefox to view this, it blanks the whole canvas for half a second when changing maps, but chromium
+            forks don't so you can actually see the changes happen</p>
     </div>
     <div id="maps"></div>
 </body>
@@ -30,6 +32,26 @@
     }
 </style>
 <script>
+    function loadHash() {
+        let hash = window.location.hash;
+        if (!hash) return;
+        if (hash[0] == "#") hash = hash.slice(1);
+        let index = window.maps.indexOf(hash);
+        if (index === -1) {
+            console.log("invalid hash, not a valid version")
+            return;
+        }
+        console.log("selected map from hash: "+index);
+        window.pointer = index;
+        showMapImg();
+        updateMapInfo();
+    }
+    function showMapImg(){
+        let targeted_img = window.maps[window.pointer];
+        Array.from(document.getElementById("maps").children).forEach((img, i) => {
+            img.style.display = img.dataset.map == targeted_img ? "block" : "none";
+        });
+    }
     const maps_json = [
         "20220831_4921414552794877183",
         "20220902_3628836433497804528",
@@ -126,7 +148,7 @@
         "20240523_8337313455176242493",
         "20240603_4757794989373292024"
     ];
-    function updateMap() {
+    function updateMapInfo() {
         let map = window.maps[window.pointer];
         document.getElementById("info").innerText = "current map: " + map;
     }
@@ -138,13 +160,14 @@
             let filename = map + ".webp";
             let img = document.createElement("img");
             img.src = "old_version_map_screenshots_webp/" + filename;
-            img.alt="loading..."
+            img.alt = "loading..."
             img.style.display = first ? "block" : "none";
             img.dataset.map = map;
             first = false;
             document.getElementById("maps").appendChild(img);
         }
-        updateMap();
+        updateMapInfo();
+        loadHash();
     }
     document.body.onkeypress = function (e) {
         if (e.key == "a") {
@@ -153,10 +176,9 @@
             window.pointer = (window.pointer + 1) % window.maps.length;
         }
         let targeted_img = window.maps[window.pointer];
-        Array.from(document.getElementById("maps").children).forEach((img, i) => {
-            img.style.display = img.dataset.map == targeted_img ? "block" : "none";
-        });
-        updateMap();
+        window.location.hash = targeted_img;
+        showMapImg();
+        updateMapInfo();
     }
     main();
 </script>
