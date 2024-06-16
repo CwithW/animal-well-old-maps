@@ -51,7 +51,10 @@
     function showMapImg(){
         let targeted_img = window.maps[window.pointer];
         Array.from(document.getElementById("maps").children).forEach((img, i) => {
-            img.style.display = img.dataset.map == targeted_img ? "block" : "none";
+            // do not change display style if is already met to speed up
+            let newDisplay = img.dataset.map == targeted_img ? "block" : "none";
+            if (img.style.display == newDisplay) return;
+            img.style.display = newDisplay;
         });
     }
     const maps_json = [
